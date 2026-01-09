@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "apps.users",
+    "apps.client"
 ]
 
 MIDDLEWARE = [
@@ -180,7 +181,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-AUTH_USER_MODEL = "users.User"
+# AUTH_USER_MODEL = "users.User"
 
 POST_OFFICE = {
     'CELERY_ENABLED': True,
