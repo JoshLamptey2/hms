@@ -666,7 +666,6 @@ class UserViewset(viewsets.ModelViewSet):
                 "email",
                 "phone_number",
                 "gender",
-                "tenant",
             ]
             
             for field in required_fields:
@@ -679,22 +678,18 @@ class UserViewset(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
             
-            tenant = Tenant.objects.filter(id=data.get("tenant")).first()
-
-            if not tenant:
-                return Response(
-                    {
-                        "success": False,
-                        "info": "Tenant does not exist.",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-                
-            data["org_slug"] = tenant.org_slug
-
+            if request.user.role.name != 'SUPER_ADMIN':
+                data['tenant'] = request.user.tenant.id
+                data['org_slug'] = request.user.org_slug
+            else:
+                tenant = Tenant.objects.filter(id=data.get("tenant")).first()
+                if not tenant:
+                    return Response({"success": False, "info": "Tenant does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+                data["org_slug"] = tenant.org_slug
+            
             if User.objects.filter(
                 Q(email=data.get("email")) | Q(phone_number=data.get("phone_number")),
-                org_slug=tenant.org_slug,
+                org_slug=data['org_slug'],
             ).exists():
                 return Response(
                     {
@@ -717,17 +712,16 @@ class UserViewset(viewsets.ModelViewSet):
             
             if data.get("password"):
                 try:
-                    validate_password(data.get("password"))
-                    hashed_password = make_password(data.get("password"))
-                    data["password"] = hashed_password
-                    
+                    plain_password = data.get("password")
+                    validate_password(plain_password)
+                    data["password"] = make_password(plain_password)
                     email=data.get("email")
                     full_name = f"{data.get('first_name')} {data.get('last_name')}"
                     
                     service.send_login_credentials(
                         to = email,
                         full_name=full_name,
-                        password=data.get("password")
+                        password=plain_password,
                     )
                 except ValidationError as e:
                     return Response(
