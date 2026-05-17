@@ -277,7 +277,7 @@ CELERY_ACCEPT_CONTENT = ["json"]# add this
 
 
 # Force Kombu to use Redis transport explicitly
-CELERY_BROKER_URL = "redis://192.168.124.92:6379/0" 
+CELERY_BROKER_URL = 'redis://localhost:6379/0' 
 
 
 EMAIL_USE_TLS = config("EMAIL_USE_TLS")

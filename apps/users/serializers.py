@@ -5,13 +5,24 @@ from apps.users.models import User, UserGroup, UserRole
 class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
-        fields = "__all__"
+        fields = ["id", "uid", "name", "created_at", "updated_at"]
 
 
 class UserGroupCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserGroup
-        fields = "__all__"
+        fields =  [
+            "id",
+            "uid",
+            "name",
+            "description",
+            "users",
+            "permissions",
+            "tenant",
+            "is_global",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class UserGroupListSerializer(serializers.ModelSerializer):
@@ -26,7 +37,7 @@ class UserGroupListSerializer(serializers.ModelSerializer):
         perms = obj.permissions.select_related("content_type")
 
         # Super admin sees everything
-        if user and user.role.name == "super_admin":
+        if user and user.role.name == "SUPER_ADMIN":
             return [perm.codename for perm in perms]
 
         # Non-super-admin: hide client/license permissions
@@ -51,10 +62,11 @@ class UserGroupListSerializer(serializers.ModelSerializer):
         if obj.tenant:
             return [
                 {
-                    "id": obj.tenant.id,
-                    "uid": obj.tenant.uid,
-                    "name": obj.tenant.name,
+                    "id": tenant.id,
+                    "uid": tenant.uid,
+                    "name": tenant.name,
                 }
+                for tenant in obj.tenant.all()
             ]
         else:
             return None

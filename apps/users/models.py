@@ -25,7 +25,7 @@ class UserGroup(models.Model):
     )
     tenant = models.ForeignKey(
         "client.Tenant",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="user_groups",
@@ -49,7 +49,7 @@ class UserRole(models.Model):
         CUSTOMER = "CUSTOMER", t("Customer")
 
     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    name = models.CharField(max_length=50, choices=Role.choices, default=Role.CUSTOMER)
+    name = models.CharField(max_length=50, choices=Role.choices, default=Role.CUSTOMER,unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -77,7 +77,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     middle_name = models.CharField(max_length=150, blank=True, null=True)
     role = models.ForeignKey(
-        UserRole, on_delete=models.CASCADE, related_name="users", blank=True, null=True
+        UserRole, on_delete=models.SET_NULL, related_name="users", blank=True, null=True
     )
     phone_number = PhoneNumberField()
     gender = models.CharField(
@@ -89,7 +89,7 @@ class User(AbstractUser):
     org_slug = models.CharField(max_length=150, blank=True, null=True)
     tenant = models.ForeignKey(
         "client.Tenant",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="users",
         blank=True,
         null=True,

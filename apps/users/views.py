@@ -1210,7 +1210,7 @@ class UserViewset(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = User.objects.filter(Q(email=field) | Q(phone_number=field)).first()
+        user = User.objects.filter(Q(email=field) | Q(phone_number=field)).select_related("role", "tenant__license" ).first()
 
         if not user:
             return Response(

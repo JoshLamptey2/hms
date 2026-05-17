@@ -112,7 +112,7 @@ class Authenticator:
                 logger.info(f"OTP sms sent to {phone}")
 
             else:
-                raise ValueError("Either email or phone must be provided to send OTP.")
+                raise 
 
             return otp
 

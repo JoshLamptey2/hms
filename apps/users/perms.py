@@ -66,6 +66,7 @@ class CustomPermission(BasePermission):
                 Q(users=request.user)
                 & Q(permissions__codename=required_permission)
                 & Q(permissions__content_type=content_type)
+                & Q(tenant=request.user.tenant) | Q(is_global=True)
             ).exists()
 
             if not user_has_group_permission:
